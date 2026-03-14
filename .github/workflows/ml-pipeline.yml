@@ -1,0 +1,43 @@
+name: ML Model CI
+
+# TASK 2: Modify trigger to run on all pushes EXCEPT main
+on:
+  push:
+    branches-ignore:
+      - main
+  pull_request:
+
+jobs:
+  validate-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      # BUG FIX 1: Missing Checkout Step
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # BUG FIX 2: Fixed indentation across all steps
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+
+      # BUG FIX 3: Added missing command to the Linter step
+      - name: Linter Check
+        run: |
+          pip install flake8
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+
+      # BUG FIX 4: Fixed block scalar indentation for the multi-line string
+      - name: Model Dry Test
+        run: |
+          python -c "import torch; print('Model environment ready!')"
+
+      # TASK 3: Artifact Implementation
+      - name: Upload Project Documentation
+        uses: actions/upload-artifact@v4
+        with:
+          name: project-doc
+          path: README.md
